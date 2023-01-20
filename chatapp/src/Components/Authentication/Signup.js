@@ -1,8 +1,11 @@
-import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, VStack } from '@chakra-ui/react'
+import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, useToast, VStack } from '@chakra-ui/react'
 import React, { useState } from 'react'
+import { registration } from '../../service'
 
 const Signup = () => {
     const [show, setShow] = useState(false)
+    const [loader, setloader] = useState(false)
+    const toast = useToast();
     const [data, setData] = useState({
         name: '',
         email: '',
@@ -12,9 +15,82 @@ const Signup = () => {
     })
     const handleClick = () => setShow(!show)
 
-    const postDetails = (pics) => { }
+    const postDetails = (pics) => {
+        setloader(true);
+        if(pics==undefined){
+            toast({
+                title:"Please Select an Image!",
+                status:"warning",
+                duration:5000,
+                isClosable:true,
+                position:"top-right"
+            })
+            return;
+        }
+        if(pics.type==="image/jpeg" || pics.type==="image/png"){
+            const pic = new FormData();
+            pic.append("file",pics);
+            pic.append("upload_preset","chat-app");
+            pic.append("cloud_name","dj3shw4tc");
+            fetch("https://api.cloudinary.com/v1_1/dj3shw4tc/image/upload",{
+                method:"post",
+                body:pic
+            })
+            .then((res)=>res.json())
+            .then((picdata)=>{
+                setData({...data,pic:picdata.url.toString()});
+                setloader(false);
+            })
+            .catch((err)=>{
+                console.log(err);
+                setloader(false)
+            })
+        
+        }else{
+            toast({
+                title:"Please Select an Image!",
+                status:"warning",
+                duration:5000,
+                isClosable:true,
+                position:"top-right"
+            })
+        }
+     }
 
-    const submitHandler = () => { }
+    const submitHandler = async () => { 
+        setloader(true);
+        console.log("data",data);
+        if(!data.email || !data.name || !data.password || !data.cnfPassword){
+            toast({
+                title:"Please Fill all the feilds",
+                status:"warning",
+                duration:5000,
+                isClosable:true,
+                position:"top-right"
+            })
+            setloader(false);
+            return
+        }
+        if(data.password!=data.cnfPassword){
+            toast({
+                title:"Password Do Not Match",
+                status:"warning",
+                duration:5000,
+                isClosable:true,
+                position:"top-right"
+            })
+            return
+        }
+      await registration(data)
+       .then((data)=>{
+            console.log(data.data);
+            setloader(false)
+        })
+        .catch((err)=>{
+            console.log(err)
+        setloader(false)
+    })
+    }
     return (
         <VStack spacing={'5'}>
             <FormControl id='first-name' isRequired>
@@ -47,7 +123,7 @@ const Signup = () => {
                 <FormLabel>Upload Your Picture</FormLabel>
                 <Input type={'file'} p={'1.5'} accept="image/*" onChange={(e) => { postDetails(e.target.files[0]) }} />
             </FormControl>
-            <Button colorScheme={'blue'} width="100%" mt={'1.5'} onClick={submitHandler} >
+            <Button colorScheme={'blue'} width="100%" mt={'1.5'} onClick={submitHandler} isLoading={loader} >
                 Sign Up
             </Button>
         </VStack>
