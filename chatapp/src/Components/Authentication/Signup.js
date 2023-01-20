@@ -1,8 +1,10 @@
 import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, useToast, VStack } from '@chakra-ui/react'
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { registration } from '../../service'
 
 const Signup = () => {
+    const navigate = useNavigate()
     const [show, setShow] = useState(false)
     const [loader, setloader] = useState(false)
     const toast = useToast();
@@ -17,79 +19,86 @@ const Signup = () => {
 
     const postDetails = (pics) => {
         setloader(true);
-        if(pics==undefined){
+        if (pics == undefined) {
             toast({
-                title:"Please Select an Image!",
-                status:"warning",
-                duration:5000,
-                isClosable:true,
-                position:"top-right"
+                title: "Please Select an Image!",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "top-right"
             })
             return;
         }
-        if(pics.type==="image/jpeg" || pics.type==="image/png"){
+        if (pics.type === "image/jpeg" || pics.type === "image/png") {
             const pic = new FormData();
-            pic.append("file",pics);
-            pic.append("upload_preset","chat-app");
-            pic.append("cloud_name","dj3shw4tc");
-            fetch("https://api.cloudinary.com/v1_1/dj3shw4tc/image/upload",{
-                method:"post",
-                body:pic
+            pic.append("file", pics);
+            pic.append("upload_preset", "chat-app");
+            pic.append("cloud_name", "dj3shw4tc");
+            fetch("https://api.cloudinary.com/v1_1/dj3shw4tc/image/upload", {
+                method: "post",
+                body: pic
             })
-            .then((res)=>res.json())
-            .then((picdata)=>{
-                setData({...data,pic:picdata.url.toString()});
-                setloader(false);
-            })
-            .catch((err)=>{
-                console.log(err);
-                setloader(false)
-            })
-        
-        }else{
+                .then((res) => res.json())
+                .then((picdata) => {
+                    setData({ ...data, pic: picdata.url.toString() });
+                    setloader(false);
+                })
+                .catch((err) => {
+                    console.log(err);
+                    setloader(false)
+                })
+
+        } else {
             toast({
-                title:"Please Select an Image!",
-                status:"warning",
-                duration:5000,
-                isClosable:true,
-                position:"top-right"
+                title: "Please Select an Image!",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "top-right"
             })
         }
-     }
+    }
 
-    const submitHandler = async () => { 
+    const submitHandler = async () => {
         setloader(true);
-        console.log("data",data);
-        if(!data.email || !data.name || !data.password || !data.cnfPassword){
+        if (!data.email || !data.name || !data.password || !data.cnfPassword) {
             toast({
-                title:"Please Fill all the feilds",
-                status:"warning",
-                duration:5000,
-                isClosable:true,
-                position:"top-right"
+                title: "Please Fill all the feilds",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "top-right"
             })
             setloader(false);
             return
         }
-        if(data.password!=data.cnfPassword){
+        if (data.password != data.cnfPassword) {
             toast({
-                title:"Password Do Not Match",
-                status:"warning",
-                duration:5000,
-                isClosable:true,
-                position:"top-right"
+                title: "Password Do Not Match",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "top-right"
             })
             return
         }
-      await registration(data)
-       .then((data)=>{
-            console.log(data.data);
-            setloader(false)
-        })
-        .catch((err)=>{
-            console.log(err)
-        setloader(false)
-    })
+        await registration(data)
+            .then((data) => {
+                localStorage.setItem('User', JSON.stringify(data.data))
+                setloader(false)
+                toast({
+                    title: "Registration Successful",
+                    status: "success",
+                    duration: 2000,
+                    isClosable: true,
+                    position: "top-right"
+                })
+                navigate('/chats')
+            })
+            .catch((err) => {
+                console.log(err)
+                setloader(false)
+            })
     }
     return (
         <VStack spacing={'5'}>

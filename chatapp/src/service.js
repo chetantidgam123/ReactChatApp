@@ -1,14 +1,17 @@
 import axios from "axios"
 const url = "/api/user"
-const config  = {
-    headers:{
-        "Content-type":"application/json"
+const config = {
+    headers: {
+        "Content-type": "application/json"
     },
 }
 
 
-function registration (body){
-    return axios.post("/api/user",body,config)
+function registration(body) {
+    return axios.post(url, body, config)
+}
+function login(body) {
+    return axios.post(url + "/login", body, config)
 }
 
-export  {registration}
+export { registration, login }
