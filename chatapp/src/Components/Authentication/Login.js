@@ -28,20 +28,36 @@ const Login = () => {
         }
 
         await login(data)
-            .then((data) => {
-                localStorage.setItem('User', JSON.stringify(data.data))
+            .then((result) => {
                 setloader(false)
+                if(result.data.code==200){
+                    localStorage.setItem('User', JSON.stringify(result.data))
+                    toast({
+                        title: "Login Successful",
+                        status: "success",
+                        duration: 2000,
+                        isClosable: true,
+                        position: "top-right"
+                    })
+                    navigate('/chats')
+                }else{
+                    toast({
+                        title: result.data.message,
+                        status: "error",
+                        duration: 2000,
+                        isClosable: true,
+                        position: "top-right"
+                    }) 
+                }
+            })
+            .catch((err) => {
                 toast({
-                    title: "Login Successful",
-                    status: "success",
+                    title: err.message,
+                    status: "error",
                     duration: 2000,
                     isClosable: true,
                     position: "top-right"
-                })
-                navigate('/chats')
-            })
-            .catch((err) => {
-                console.log(err)
+                }) 
                 setloader(false)
             })
     }
