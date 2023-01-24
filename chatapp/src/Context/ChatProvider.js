@@ -21,7 +21,9 @@ const ChatProvider = ({children})=>{
         </ChatContext.Provider>
     )
 }
-export const ChatState = ()=>{
-    return useContext(ChatContext)
+
+ const   ChatState = ()=>{
+    return useContext(ChatContext);
 }
-export default ChatProvider
+
+export  {ChatProvider,ChatState};
