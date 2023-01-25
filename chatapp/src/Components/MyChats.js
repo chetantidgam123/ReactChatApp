@@ -5,6 +5,7 @@ import { getSender } from '../Config/ChatLogic';
 import { ChatState } from '../Context/ChatProvider';
 import { fetchChats } from '../service';
 import ChatLoading from './ChatLoading';
+import GroupChatModel from './miscellaneous/GroupChatModel';
 
 const MyChats = () => {
   const [loggedUser, setLoggedUser] = useState()
@@ -15,19 +16,8 @@ const MyChats = () => {
   const fetchchats = async () => {
     await fetchChats()
       .then(async (result) => {
-        console.log(result);
         let responce = await result.data;
         setchats(responce)
-        // if (responce.code == 200) {
-        // } else {
-        //   toast({
-        //     title: responce.message,
-        //     status: "warning",
-        //     duration: 5000,
-        //     isClosable: true,
-        //     position: "top-right"
-        //   })
-        // }
       }).catch((err) => {
         toast({
           title: err.message,
@@ -42,7 +32,6 @@ const MyChats = () => {
     setLoggedUser(JSON.parse(localStorage.getItem("User")));
     fetchchats()
   }, [])
-  console.log(chats);
   return (
     <>
       <Box display={{ base: SelectedChat ? "none" : "flex", md: "flex" }}
@@ -59,10 +48,12 @@ const MyChats = () => {
           fontFamily="Work sans" display={"flex"} w="100%"
           justifyContent={"space-between"} alignItems="center" >
           My Chats
+          <GroupChatModel>
           <Button display={"flex"}
             fontSize={{ base: "17px", md: "13px", lg: "17px" }}
             rightIcon={<AddIcon />}
           >New Group Chat</Button>
+          </GroupChatModel>
         </Box>
         <Box display={"flex"} flexDir="column"
           p={3} bg="#F8F8F8" w={"100%"} h="100%"
