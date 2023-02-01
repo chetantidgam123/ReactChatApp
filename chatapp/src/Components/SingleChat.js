@@ -2,25 +2,22 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, FormControl, IconButton, Input, Spinner, Text, useToast } from '@chakra-ui/react'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
+import { io } from 'socket.io-client'
 import { getSender, getSenderFull } from '../Config/ChatLogic'
 import { ChatState } from '../Context/ChatProvider'
 import ProfileModal from './miscellaneous/ProfileModal'
 import UpdateGroupChatModal from './miscellaneous/UpdateGroupChatModal'
 import ScrollableChat from './ScrollableChat'
 import "./style.css";
-
+const ENDPOINT = "http://localhost:5000";
+var socket, SelectedChatCompare;
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const [messages, setMessages] = useState([])
     const [loading, setLoading] = useState(false)
     const [newMessage, setNewMessage] = useState('')
     const { user, SelectedChat, setSelectedChat } = ChatState()
+    const [socketConnected, setSocketConnected] = useState(false)
     const toast = useToast()
-
-    useEffect(() => {
-        fetchMessages()
-    }, [SelectedChat])
-
-
     const fetchMessages = async () => {
         if (!SelectedChat) return;
         try {
@@ -35,6 +32,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             console.log(messages);
             setMessages(data);
             setLoading(false);
+
+            socket.emit('join chat',SelectedChat._id)
         } catch (error) {
             toast({
                 title: "Error Occoured!",
@@ -48,6 +47,30 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
         }
     }
+    useEffect(()=>{
+        socket = io(ENDPOINT);
+        socket.emit("setup",user);
+        socket.on('connection',()=>{
+        setSocketConnected(true)
+        })
+    },[]);
+
+    useEffect(() => {
+        fetchMessages()
+        SelectedChatCompare = SelectedChat;
+    }, [SelectedChat])
+
+    useEffect(()=>{
+        socket.on('message received',(newMessageReceived)=>{
+            if(!SelectedChatCompare || SelectedChatCompare._id!=newMessageReceived.chat._id){
+                // give ntificcation
+            }else{
+                setMessages([...messages,newMessageReceived]);
+            }
+        })
+    })
+
+   
 
     const sendMessage = async (e) => {
         if (e.key === "Enter" && newMessage) {
@@ -64,7 +87,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     "chatId": SelectedChat._id
                 }, config
                 );
-                console.log(data);
+                socket.emit('new message',data);
                 setMessages([...messages, data])
             } catch (error) {
                 toast({
@@ -80,6 +103,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             }
         }
     }
+
+
     const typingHandler = (e) => {
         setNewMessage(e.target.value);
     }
