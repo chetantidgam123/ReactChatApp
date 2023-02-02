@@ -12,7 +12,10 @@ import {
   Spinner,
 } from '@chakra-ui/react'
 import React, { useState } from 'react'
+import { Effect } from 'react-notification-badge'
+import NotificationBadge from 'react-notification-badge/lib/components/NotificationBadge'
 import { useNavigate } from 'react-router-dom'
+import { getSender } from '../../Config/ChatLogic'
 import { ChatState, ChatProvider } from '../../Context/ChatProvider'
 import { chatWithOther, searchUser } from '../../service'
 import ChatLoading from '../ChatLoading'
@@ -21,7 +24,7 @@ import ProfileModal from './ProfileModal'
 
 const SideDrawer = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { user, setSelectedChat, chats, setchats } = ChatState();
+  const { user, setSelectedChat, chats, setchats, notification, setNotification } = ChatState();
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -114,9 +117,22 @@ const SideDrawer = () => {
         <div>
           <Menu>
             <MenuButton p={1}>
+              <NotificationBadge count={notification.length} effect={Effect.SCALE} />
               <BellIcon fontSize={"2xl"} m={1} />
             </MenuButton>
-            {/* <MenuList></MenuList> */}
+            <MenuList pl={2}>
+              {!notification?.length && "No New Messages"}
+              {
+                notification?.map((notify) => (
+                  <MenuItem key={notify._id} onClick={() => {
+                    setSelectedChat(notify.chat);
+                    setNotification(notification.filter((n) => n !== notify));
+                  }}>
+                    {notify?.chat.isGroupChat ? `New Message in ${notify.chat.chatName}` : `New Message From${getSender(user, notify.chat.users)}`}
+                  </MenuItem>
+                ))
+              }
+            </MenuList>
           </Menu>
           <Menu>
             <MenuButton as={Button} rightIcon={<ChevronDownIcon />} >
