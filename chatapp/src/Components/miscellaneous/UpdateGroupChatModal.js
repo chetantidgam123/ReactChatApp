@@ -50,7 +50,8 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
       const config = {
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${user?.token}`
+          Authorization: `Bearer ${user?.token}`,
+          "Access-Control-Allow-Origin": "*"
         },
       }
       const { data } = await axios.put("/api/chat/groupremove", {
@@ -103,7 +104,8 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
       const config = {
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${user?.token}`
+          Authorization: `Bearer ${user?.token}`,
+          "Access-Control-Allow-Origin": "*"
         },
       }
       const { data } = await axios.put('/api/chat/groupadd', {
@@ -134,7 +136,8 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
       const config = {
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${user?.token}`
+          Authorization: `Bearer ${user?.token}`,
+          "Access-Control-Allow-Origin": "*"
         },
       }
       const { data } = await axios.put('/api/chat/rename', {

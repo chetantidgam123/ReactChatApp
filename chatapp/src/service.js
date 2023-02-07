@@ -1,11 +1,12 @@
 import axios from "axios"
-const userUrl = "/api/user"
-const chatUrl = "/api/chat"
+const userUrl = "https://chatapp-09pz.onrender.com/api/user"
+const chatUrl = "https://chatapp-09pz.onrender.com/api/chat"
 const user = JSON.parse(localStorage.getItem("User"))
 const config = {
     headers: {
         "Content-type": "application/json",
-        Authorization: `Bearer ${user?.token}`
+        Authorization: `Bearer ${user?.token}`,
+        "Access-Control-Allow-Origin": "*"
     },
 }
 
